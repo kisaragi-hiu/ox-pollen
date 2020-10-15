@@ -1,0 +1,15 @@
+* ox-pollen
+
+A (to-be) Org export backend to [[https://docs.racket-lang.org/pollen/][Pollen]] markup.
+
+** Installation
+
+#+BEGIN_SRC elisp
+(straight-use-package '(ox-pollen :host github :repo "kisaragi-hiu/ox-pollen"))
+(require 'ox-pollen)
+#+END_SRC
+
+* Compared to lozenge.el
+
+- Lozenge.el is for evaluating Emacs Lisp code inline as you export, in a syntax that’s inspired by Pollen / Scribble.
+- ox-pollen is for converting Org files to Pollen markup =.pm= files, ready to be used in a Pollen project.
