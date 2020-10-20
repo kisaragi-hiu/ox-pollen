@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.5.0
+;; Version: 0.6.0
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -64,9 +64,9 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (entity              . ox-pollen-entity)
     (example-block       . ,(ox-pollen--block "example"))
     (fixed-width         . ,(ox-pollen--block "example"))
-    ;; specific HTML export is... unneeded.
-    (export-block        . ox-pollen--identity)
-    (export-snippet      . ox-pollen--identity)
+    ;; Used for preventing Org from parsing it first
+    (export-block        . ox-pollen-export-block)
+    (export-snippet      . ox-pollen--discard)
     (footnote-definition . ,(ox-pollen--block "reftxt"))
     (footnote-reference  . ,(ox-pollen--block "ref"))
     (headline            . ox-pollen-headline)
@@ -103,6 +103,9 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (timestamp           . ox-pollen-timestamp)
     (underline           . ,(ox-pollen--block "u"))
     (verse-block         . ,(ox-pollen--block "verse"))))
+
+(defun ox-pollen-export-block (obj &rest _)
+  (org-element-property :value obj))
 
 (defun ox-pollen-statistics-cookie (obj &rest _)
   (funcall
