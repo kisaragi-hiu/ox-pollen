@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.0.1
+;; Version: 0.5.0
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
