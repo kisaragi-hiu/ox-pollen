@@ -194,7 +194,7 @@ Almost completely copied from `org-md-link'."
                 (t raw-path))))
     (cond
      ;; Link type is handled by a special function.
-     ((org-export-custom-protocol-maybe link desc 'pollen info))
+     ((org-export-custom-protocol-maybe link desc 'pollen))
      ((member type '("custom-id" "id" "fuzzy"))
       (let ((destination (if (string= type "fuzzy")
                              (org-export-resolve-fuzzy-link link info)
