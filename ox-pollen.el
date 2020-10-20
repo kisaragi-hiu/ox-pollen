@@ -58,7 +58,7 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (planning            . ox-pollen--discard)
     ;; I consider these three to be equivalent
     (code                . ,(ox-pollen--block "code"))
-    (verbatim            . ,(ox-pollen--block "code"))
+    (verbatim            . ox-pollen--identity)
     (inline-src-block    . ,(ox-pollen--block "code"))
     (drawer              . ox-pollen-drawer)
     (dynamic-block       . ox-pollen--identity)
@@ -155,15 +155,17 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (setq text (replace-regexp-in-string "[ \t]*\n" "  \n" text)))
   text)
 
-(defun ox-pollen-headline (obj _contents _info)
+(defun ox-pollen-headline (obj contents _info)
   "Transcode headline OBJ into h1, h2, h3...
 
 This emits h7 and beyond, so define it in Pollen accordingly."
   (let ((level (org-element-property :level obj)))
-    (format "◊h%s{%s}"
+    (format "◊h%s[#:id \"%s\"]{%s}\n\n%s"
             level
+            (downcase (org-element-property :raw-value obj))
             ;; We want `title' because it contains parsed links, for example
-            (org-element-property :title obj))))
+            (org-element-property :raw-value obj)
+            contents)))
 
 (defun ox-pollen-src-block (obj &rest _)
   (format "◊highlight['%s]{%s}"
@@ -246,28 +248,34 @@ Almost completely copied from `org-md-link'."
               (org-export-resolve-coderef path info)))
      ((equal type "radio") desc)
      (t (if (not desc)
-            (format "◊image[\"%s\"]" path)
-          (format "◊image[\"%s\"]{%s}" path desc))))))
+            (format "◊link[\"%s\"]" path)
+          (format "◊link[\"%s\"]{%s}" path desc))))))
 
 ;;;; The fun part: Lists
 
 (defun ox-pollen-plain-list (obj contents _info)
   (pcase (org-element-property :type obj)
     (`unordered
-     (funcall (ox-pollen--block "ul") contents))
+     (format "◊ul{%s}" contents))
     (`ordered
-     (funcall (ox-pollen--block "ol") contents))
+     (format "◊ol{%s}" contents))
     (`descriptive
-     (funcall (ox-pollen--block "dl") contents))))
+     (format "◊dl{%s}" contents))))
 
 (defun ox-pollen-item (obj contents _info)
   (pcase (org-element-property :type (org-export-get-parent obj))
     ((or 'unordered 'ordered)
-     contents)
+     (format "◊li{%s}" contents))
     ('descriptive
      (format "◊dt{%s}\n◊dd{%s}"
              (car (org-element-property :tag obj))
              contents))))
+
+;;;; Public interface (apart from being an ox backend)
+
+(defun ox-pollen-export-to-pollen ()
+  "Export current buffer to a Pollen markup file."
+  (org-export-to-file 'pollen (org-export-output-file-name ".html.pm")))
 
 (provide 'ox-pollen)
 ;;; ox-pollen.el ends here
