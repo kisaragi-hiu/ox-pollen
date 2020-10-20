@@ -1,6 +1,6 @@
 * ox-pollen
 
-A (to-be) Org export backend to [[https://docs.racket-lang.org/pollen/][Pollen]] markup.
+An Org export backend to export to [[https://docs.racket-lang.org/pollen/][Pollen]] markup.
 
 ** Installation
 
@@ -9,10 +9,11 @@ A (to-be) Org export backend to [[https://docs.racket-lang.org/pollen/][Pollen]]
 (require 'ox-pollen)
 #+END_SRC
 
-* Acknoledgements
+* Acknowledgements
 - ox-tufte
 - ox-md
 - https://orgmode.org/worg/dev/org-export-reference.html
+
 * Compared to lozenge.el
 
 - Lozenge.el is for evaluating Emacs Lisp code inline as you export, in a syntax that’s inspired by Pollen / Scribble.

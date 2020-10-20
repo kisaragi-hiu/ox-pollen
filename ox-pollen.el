@@ -25,7 +25,7 @@
 
 ;;; Commentary:
 
-;; A to-be Org-to-Pollen exporter.
+;; An Org-to-Pollen exporter.
 
 ;;; Code:
 
