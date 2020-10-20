@@ -5,7 +5,7 @@
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
 ;; Version: 0.0.1
-;; Package-Requires: ((org "9.4") (emacs "26.1"))
+;; Package-Requires: ((org "9.1") (emacs "25.1") (dash "1.0"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
 ;; This file is not part of GNU Emacs.
@@ -30,82 +30,121 @@
 ;;; Code:
 
 (require 'ox)
+(require 'dash)
 
 (defgroup org-export-pollen nil
   "Options for the Pollen export backend."
   :group 'org-export)
 
-(org-export-define-backend 'pollen
-  (mapcar
-   ;; org-pollen-bold, org-pollen-code, etc.
-   (lambda (it)
-     (cons it (intern (concat "ox-pollen-" (symbol-name it)))))
-   '(bold
-     center-block
-     clock
-     code
-     drawer
-     dynamic-block
-     entity
-     example-block
-     export-block
-     export-snippet
-     fixed-width
-     footnote-definition
-     footnote-reference
-     headline
-     horizontal-rule
-     inline-src-block
-     inlinetask
-     italic
-     item
-     keyword
-     line-break
-     link
-     node-property
-     paragraph
-     plain-list
-     plain-text
-     planning
-     property-drawer
-     quote-block
-     radio-target
-     section
-     special-block
-     src-block
-     statistics-cookie
-     strike-through
-     subscript
-     superscript
-     table
-     table-cell
-     table-row
-     target
-     template
-     timestamp
-     underline
-     verbatim
-     verse-block)))
-
 (defun ox-pollen--block (command)
-  "Return a function that creates creates a Pollen block COMMAND.
+  "Return a function returning a Pollen block COMMAND.
 
 Calling that function with \"test\" should return ◊COMMAND{test}."
   (lambda (_obj contents _info) (format "◊%s{%s}" command contents)))
 
-(defalias 'ox-pollen-verse-block (ox-pollen--block "verse"))
-(defalias 'ox-pollen-superscript (ox-pollen--block "sup"))
-(defalias 'ox-pollen-subscript (ox-pollen--block "sub"))
-;; <strike> is deprecated in HTML5
-(defalias 'ox-pollen-strikethrough (ox-pollen--block "s"))
-;; "Bold" and "Italic" are not sementic in Org
-(defalias 'ox-pollen-bold (ox-pollen--block "b"))
-(defalias 'ox-pollen-italic (ox-pollen--block "i"))
-(defalias 'ox-pollen-fixed-width (ox-pollen--block "code"))
-
-(defun ox-pollen-paragraph (_obj contents _info)
-  "Transcode paragraph element by unwrapping it."
+(defun ox-pollen--identity (_obj contents _info)
+  "Return CONTENTS."
   contents)
+
+(defun ox-pollen--discard (&rest _)
+  "Discard an element."
+  "")
+
+(org-export-define-backend 'pollen
+  `((bold                . ,(ox-pollen--block "b"))
+    (center-block        . ,(ox-pollen--block "center"))
+    ;; Not bothering implementing time tracking mechanism in an export.
+    (clock               . ox-pollen--identity)
+    (planning            . ox-pollen--discard)
+    ;; I consider these three to be equivalent
+    (code                . ,(ox-pollen--block "code"))
+    (verbatim            . ,(ox-pollen--block "code"))
+    (inline-src-block    . ,(ox-pollen--block "code"))
+    (drawer              . ox-pollen-drawer)
+    (dynamic-block       . ox-pollen--identity)
+    (entity              . ox-pollen-entity)
+    (example-block       . ,(ox-pollen--block "example"))
+    (fixed-width         . ,(ox-pollen--block "example"))
+    ;; specific HTML export is... unneeded.
+    (export-block        . ox-pollen--identity)
+    (export-snippet      . ox-pollen--identity)
+    (footnote-definition . ,(ox-pollen--block "reftxt"))
+    (footnote-reference  . ,(ox-pollen--block "ref"))
+    (headline            . ox-pollen-headline)
+    (horizontal-rule     . ,(-const "◊hr[]"))
+    (inlinetask          . ox-pollen--identity)
+    (italic              . ,(ox-pollen--block "i"))
+    (item                . ox-pollen-item)
+    (keyword             . ox-pollen-keyword)
+    (line-break          . ,(-const "◊br[]"))
+    (link                . ox-pollen-link)
+    (node-property       . ox-pollen-node-property)
+    (paragraph           . ox-pollen--identity)
+    (plain-list          . ox-pollen-plain-list)
+    (plain-text          . ox-pollen-plain-text)
+    (property-drawer     . ox-pollen-property-drawer)
+    (quote-block         . ,(ox-pollen--block "blockquote"))
+    (section             . ox-pollen--identity)
+    (special-block       . ox-pollen-special-block)
+    (src-block           . ox-pollen-src-block)
+    (statistics-cookie   . ox-pollen-statistics-cookie)
+    ;; <strike> is deprecated in HTML5
+    (strike-through      . ,(ox-pollen--block "s"))
+    (subscript           . ,(ox-pollen--block "sub"))
+    (superscript         . ,(ox-pollen--block "sup"))
+    (table               . ,(ox-pollen--block "table"))
+    (table-cell          . ,(ox-pollen--block "th"))
+    (table-row           . ,(ox-pollen--block "tr"))
+    (target              . ox-pollen-target)
+    ;; Radio Target in Org allows implicit linking, which we're not
+    ;; going to implement in an exporter. Just treat it as a normal
+    ;; target.
+    (radio-target        . ox-pollen-target)
+    (template            . ox-pollen-template)
+    (timestamp           . ox-pollen-timestamp)
+    (underline           . ,(ox-pollen--block "u"))
+    (verse-block         . ,(ox-pollen--block "verse"))))
+
+(defun ox-pollen-statistics-cookie (obj &rest _)
+  (funcall
+   (ox-pollen--block "statistics-cookie")
+   (org-element-property :value obj)))
+
+(defun ox-pollen-property-drawer (obj contents _info)
+  "Transcode a property drawer into an HTML details element in Pollen Markup."
+  (format
+   "◊details{◊summary{Properties}
+◊dd{%s}}"
+   contents))
+
+(defun ox-pollen-node-property (obj &rest _)
+  "Transcode a node property."
+  (format "◊dt{%s}\n◊dd{%s}"
+          (org-element-property :key obj)
+          (org-element-property :value obj)))
+
+(defun ox-pollen-target (obj _contents _info)
+  (format "◊span[#:id \"%s\"]" (org-element-property :value obj)))
+
+(defun ox-pollen-template (contents _info)
+  "Final processing of the converted document."
+  (concat "#lang pollen\n\n" contents))
+
+(defun ox-pollen-timestamp (obj contents _info)
+  (funcall (ox-pollen--block "code")
+           (org-element-property :raw-value obj)))
+
+(defun ox-pollen-drawer (obj contents _info)
+  "Transcode a drawer into an HTML details element in Pollen Markup."
+  (format
+   "◊details{◊summary{%s}
+%s}"
+   (org-element-property :drawer-name obj)
+   contents))
+
+(defun ox-pollen-entity (obj &rest _)
+  "Transform an entity."
+  (org-element-property :utf-8 obj))
 
 (defun ox-pollen-plain-text (text info)
   "Transcode a TEXT string into Pollen markup."
@@ -115,10 +154,6 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
   (when (plist-get info :preserve-breaks)
     (setq text (replace-regexp-in-string "[ \t]*\n" "  \n" text)))
   text)
-
-(defun ox-pollen-section (_obj contents _info)
-  "Transcode section element by unwrapping it."
-  contents)
 
 (defun ox-pollen-headline (obj _contents _info)
   "Transcode headline OBJ into h1, h2, h3...
@@ -214,9 +249,25 @@ Almost completely copied from `org-md-link'."
             (format "◊image[\"%s\"]" path)
           (format "◊image[\"%s\"]{%s}" path desc))))))
 
-(defun ox-pollen-horizontal-rule (&rest _)
-  "Transcode a horizontal-rule element."
-  "◊hr[]")
+;;;; The fun part: Lists
+
+(defun ox-pollen-plain-list (obj contents _info)
+  (pcase (org-element-property :type obj)
+    (`unordered
+     (funcall (ox-pollen--block "ul") contents))
+    (`ordered
+     (funcall (ox-pollen--block "ol") contents))
+    (`descriptive
+     (funcall (ox-pollen--block "dl") contents))))
+
+(defun ox-pollen-item (obj contents _info)
+  (pcase (org-element-property :type (org-export-get-parent obj))
+    ((or 'unordered 'ordered)
+     contents)
+    ('descriptive
+     (format "◊dt{%s}\n◊dd{%s}"
+             (car (org-element-property :tag obj))
+             contents))))
 
 (provide 'ox-pollen)
 ;;; ox-pollen.el ends here
