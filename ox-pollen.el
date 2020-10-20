@@ -5,7 +5,7 @@
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
 ;; Version: 0.0.1
-;; Package-Requires: ((org "9.1") (emacs "25.1") (dash "1.0"))
+;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
 ;; This file is not part of GNU Emacs.
@@ -30,7 +30,6 @@
 ;;; Code:
 
 (require 'ox)
-(require 'dash)
 
 (defgroup org-export-pollen nil
   "Options for the Pollen export backend."
@@ -71,12 +70,12 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (footnote-definition . ,(ox-pollen--block "reftxt"))
     (footnote-reference  . ,(ox-pollen--block "ref"))
     (headline            . ox-pollen-headline)
-    (horizontal-rule     . ,(-const "◊hr[]"))
+    (horizontal-rule     . ,(lambda (&rest _) "◊hr[]"))
     (inlinetask          . ox-pollen--identity)
     (italic              . ,(ox-pollen--block "i"))
     (item                . ox-pollen-item)
     (keyword             . ox-pollen-keyword)
-    (line-break          . ,(-const "◊br[]"))
+    (line-break          . ,(lambda (&rest _) "◊br[]"))
     (link                . ox-pollen-link)
     (node-property       . ox-pollen-node-property)
     (paragraph           . ox-pollen--identity)
