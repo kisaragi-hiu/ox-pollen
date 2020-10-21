@@ -9,6 +9,30 @@ An Org export backend to export to [[https://docs.racket-lang.org/pollen/][Polle
 (require 'ox-pollen)
 #+END_SRC
 
+** Usage (in a Pollen project)
+
+Using [[https://github.com/cask/cask][Cask]]:
+
+- Install cask on your system
+
+- In your =Cask= file:
+
+  #+begin_src emacs-lisp
+  (source gnu)
+  (source melpa)
+
+  (depends-on "cask")
+  (depends-on "ox-pollen"
+              :git "https://github.com/kisaragi-hiu/ox-pollen"
+              :files ("ox-pollen.el"))
+  #+end_src
+
+- Run =cask install=
+
+- Export an Org file to Pollen:
+
+  : cask emacs "foo.org" --batch -l ox-pollen -f ox-pollen-export-to-pollen --kill
+
 * Acknowledgements
 - ox-tufte
 - ox-md
