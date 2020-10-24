@@ -35,6 +35,10 @@
   "Options for the Pollen export backend."
   :group 'org-export)
 
+(defun ox-pollen--escape-lozenge (str)
+  "Escape lozenge (◊) characters in STR for Pollen Markup."
+  (replace-regexp-in-string "◊" "◊\"◊\"" str))
+
 (defun ox-pollen--block (command)
   "Return a function returning a Pollen block COMMAND.
 
@@ -170,9 +174,10 @@ This emits h7 and beyond, so define it in Pollen accordingly."
             contents)))
 
 (defun ox-pollen-src-block (obj &rest _)
-  (format "◊highlight['%s]{\n%s\n}"
+  (format "◊highlight['%s]{\n%s}"
           (org-element-property :language obj)
-          (org-element-property :value obj)))
+          (ox-pollen--escape-lozenge
+           (org-element-property :value obj))))
 
 (defun ox-pollen-special-block (obj contents _info)
   "Transcode special block OBJ into Pollen."
