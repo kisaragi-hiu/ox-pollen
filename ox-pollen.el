@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.6.2
+;; Version: 0.6.3
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -34,6 +34,21 @@
 (defgroup org-export-pollen nil
   "Options for the Pollen export backend."
   :group 'org-export)
+
+(defun ox-pollen--str-to-list (str)
+  "Take STR and turn it into an appropriate list of strings.
+
+Largely lifted from `org-roam--str-to-list'."
+  (when str
+    (unless (stringp str)
+      (signal 'wrong-type-argument `(stringp ,str)))
+    (let* ((str (org-trim str))
+           (format-str ":dummy '(%s)")
+           (items (cdar (org-babel-parse-header-arguments
+                         (format format-str str)))))
+      (mapcar (lambda (item)
+                (format "%s" item))
+              items))))
 
 (defun ox-pollen--escape-lozenge (str)
   "Escape lozenge (◊) characters in STR for Pollen Markup."
@@ -186,9 +201,16 @@ This emits h7 and beyond, so define it in Pollen accordingly."
           contents))
 
 (defun ox-pollen-keyword (obj _contents _info)
-  (format "◊define-meta[%s]{%s}"
-          (downcase (org-element-property :key obj))
-          (org-element-property :value obj)))
+  "Transform keyword OBJ into Pollen define-meta statements."
+  (let ((key (org-element-property :key obj))
+        (val (org-element-property :value obj)))
+    (if (member key '("TAGS"))
+        (format "◊define-meta[%s '%S]"
+                (downcase key)
+                (ox-pollen--str-to-list val))
+      (format "◊define-meta[%s]{%s}"
+              (downcase key)
+              val))))
 
 (defun ox-pollen-link (link desc info)
   "Transcode LINK object into Pollen markup.
