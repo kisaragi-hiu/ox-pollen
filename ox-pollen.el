@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.6.4
+;; Version: 0.6.5
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -210,7 +210,7 @@ This emits h7 and beyond, so define it in Pollen accordingly."
     (cond
      ;; properties that define a list
      ((member key '("TAGS"))
-      (format "◊define-meta[%s '%S]"
+      (format "◊define-meta[%s %S]"
               (downcase key)
               (ox-pollen--str-to-list val)))
      ;; properties that don't apply and should be discarded
