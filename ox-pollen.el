@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.6.3
+;; Version: 0.6.4
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -204,13 +204,23 @@ This emits h7 and beyond, so define it in Pollen accordingly."
   "Transform keyword OBJ into Pollen define-meta statements."
   (let ((key (org-element-property :key obj))
         (val (org-element-property :value obj)))
-    (if (member key '("TAGS"))
-        (format "◊define-meta[%s '%S]"
-                (downcase key)
-                (ox-pollen--str-to-list val))
+    ;; org-roam integration
+    (when (string-prefix-p "ROAM_" key)
+      (setq key (substring key 5)))
+    (cond
+     ;; properties that define a list
+     ((member key '("TAGS"))
+      (format "◊define-meta[%s '%S]"
+              (downcase key)
+              (ox-pollen--str-to-list val)))
+     ;; properties that don't apply and should be discarded
+     ((member key '("ROAM_KEY"))
+      "")
+     ;; normal properties
+     (t
       (format "◊define-meta[%s]{%s}"
               (downcase key)
-              val))))
+              val)))))
 
 (defun ox-pollen-link (link desc info)
   "Transcode LINK object into Pollen markup.
