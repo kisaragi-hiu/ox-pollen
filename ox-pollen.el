@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.6.0
+;; Version: 0.6.1
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -170,7 +170,7 @@ This emits h7 and beyond, so define it in Pollen accordingly."
             contents)))
 
 (defun ox-pollen-src-block (obj &rest _)
-  (format "◊highlight['%s]{%s}"
+  (format "◊highlight['%s]{\n%s\n}"
           (org-element-property :language obj)
           (org-element-property :value obj)))
 
