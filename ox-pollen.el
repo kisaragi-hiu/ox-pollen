@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.7.0
+;; Version: 0.7.1
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -68,7 +68,7 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
   "Discard an element."
   "")
 
-(defun ox-pollen--tag-value (tag)
+(defun ox-pollen--value-block (tag)
   "Return a function that emits ◊TAG{%s}, where %s is the `:value' property of OBJ."
   (lambda (obj &rest _)
     (format "◊%s{%s}"
