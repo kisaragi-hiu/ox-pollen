@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.6.5
+;; Version: 0.7.0
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -68,6 +68,13 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
   "Discard an element."
   "")
 
+(defun ox-pollen--tag-value (tag)
+  "Return a function that emits ◊TAG{%s}, where %s is the `:value' property of OBJ."
+  (lambda (obj &rest _)
+    (format "◊%s{%s}"
+            tag
+            (org-element-property :value obj))))
+
 (org-export-define-backend 'pollen
   `((bold                . ,(ox-pollen--block "b"))
     (center-block        . ,(ox-pollen--block "center"))
@@ -75,9 +82,9 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (clock               . ox-pollen--identity)
     (planning            . ox-pollen--discard)
     ;; I consider these three to be equivalent
-    (code                . ,(ox-pollen--block "code"))
-    (verbatim            . ox-pollen--identity)
-    (inline-src-block    . ,(ox-pollen--block "code"))
+    (code                . ,(ox-pollen--value-block "code"))
+    (verbatim            . ,(ox-pollen--value-block "code"))
+    (inline-src-block    . ,(ox-pollen--value-block "code"))
     (drawer              . ox-pollen-drawer)
     (dynamic-block       . ox-pollen--identity)
     (entity              . ox-pollen-entity)
@@ -105,7 +112,7 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (section             . ox-pollen--identity)
     (special-block       . ox-pollen-special-block)
     (src-block           . ox-pollen-src-block)
-    (statistics-cookie   . ox-pollen-statistics-cookie)
+    (statistics-cookie   . ,(ox-pollen--value-block "statistics-cookie"))
     ;; <strike> is deprecated in HTML5
     (strike-through      . ,(ox-pollen--block "s"))
     (subscript           . ,(ox-pollen--block "sub"))
@@ -125,11 +132,6 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
 
 (defun ox-pollen-export-block (obj &rest _)
   (org-element-property :value obj))
-
-(defun ox-pollen-statistics-cookie (obj &rest _)
-  (funcall
-   (ox-pollen--block "statistics-cookie")
-   (org-element-property :value obj)))
 
 (defun ox-pollen-property-drawer (obj contents _info)
   "Transcode a property drawer into an HTML details element in Pollen Markup."
