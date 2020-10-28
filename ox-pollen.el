@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.7.1
+;; Version: 0.7.2
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -73,7 +73,8 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
   (lambda (obj &rest _)
     (format "◊%s{%s}"
             tag
-            (org-element-property :value obj))))
+            (ox-pollen--escape-lozenge
+             (org-element-property :value obj)))))
 
 (org-export-define-backend 'pollen
   `((bold                . ,(ox-pollen--block "b"))
