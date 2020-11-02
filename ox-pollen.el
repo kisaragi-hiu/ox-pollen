@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.8.0
+;; Version: 0.8.1
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -225,7 +225,6 @@ This emits h7 and beyond, so define it in Pollen accordingly."
               (downcase key)
               val)))))
 
-;; FIXME: returns ◊link[\"nil\"]{\"nil\"} for links without a description
 (defun ox-pollen-link (link desc info)
   "Transcode LINK object into Pollen markup.
 
@@ -246,7 +245,8 @@ Almost completely copied from `org-md-link'."
                            "html.pmd"))
                  (concat
                   (file-name-sans-extension path)
-                  ".html")))))
+                  ".html"))
+                (t path))))
     (cond
      ;; Link type is handled by a special function.
      ((org-export-custom-protocol-maybe link desc 'pollen))
