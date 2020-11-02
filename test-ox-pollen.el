@@ -80,7 +80,35 @@ Pass ARGS to PARSER."
 ;; (ert-deftest test-ox-pollen-src-block ())
 ;; (ert-deftest test-ox-pollen-special-block ())
 ;; (ert-deftest test-ox-pollen-keyword ())
-;; (ert-deftest test-ox-pollen-link ())
+
+(defun test-ox-pollen-link--wrapped (link &optional desc)
+  "Call `ox-pollen-link' after formatting LINK and DESC appropriately.
+
+This is here because `org-element-link-parser' doesn't parse the
+description."
+  (ox-pollen-link
+   (test-ox-pollen--org-element-parse
+    (org-link-make-string link desc)
+    #'org-element-link-parser)
+   desc nil))
+
+(ert-deftest test-ox-pollen-link ()
+  (should
+   (equal
+    (test-ox-pollen-link--wrapped
+     "https://example.com")
+    "◊link[\"https://example.com\"]"))
+  (should
+   (equal
+    (test-ox-pollen-link--wrapped
+     "https://example.com" "Example")
+    "◊link[\"https://example.com\"]{Example}"))
+  (should
+   (equal
+    (test-ox-pollen-link--wrapped
+     "file:test.org" "Example")
+    "◊link[\"test.html\"]{Example}")))
+
 ;; (ert-deftest test-ox-pollen-plain-list ())
 ;; (ert-deftest test-ox-pollen-item ())
 ;; (ert-deftest test-ox-pollen-export-to-pollen ())
