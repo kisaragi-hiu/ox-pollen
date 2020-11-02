@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.7.2
+;; Version: 0.8.0
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -234,7 +234,18 @@ Almost completely copied from `org-md-link'."
          (path (cond
                 ((member type '("http" "https" "ftp" "mailto"))
                  (concat type ":" raw-path))
-                (t raw-path))))
+                (t raw-path)))
+         ;; ox-pollen opinion: links to .org files (and for that
+         ;; matter other source types) in source should be exported as
+         ;; links to .html files when exported.
+         (path (cond
+                ((member (file-name-extension path)
+                         '("org"
+                           "html.pm"
+                           "html.pmd"))
+                 (concat
+                  (file-name-sans-extension path)
+                  ".html")))))
     (cond
      ;; Link type is handled by a special function.
      ((org-export-custom-protocol-maybe link desc 'pollen))
