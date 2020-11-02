@@ -225,6 +225,7 @@ This emits h7 and beyond, so define it in Pollen accordingly."
               (downcase key)
               val)))))
 
+;; FIXME: returns ◊link[\"nil\"]{\"nil\"} for links without a description
 (defun ox-pollen-link (link desc info)
   "Transcode LINK object into Pollen markup.
 
