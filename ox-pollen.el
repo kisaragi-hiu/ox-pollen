@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.8.1
+;; Version: 0.8.2
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -294,7 +294,7 @@ Almost completely copied from `org-md-link'."
                       (org-export-get-caption
                        (org-export-get-parent-element link))
                       info)))
-        (if (not (org-string-nw-p caption))
+        (if (org-string-nw-p caption)
             (format "◊image[\"%s\"]{%s}" path caption)
           (format "◊image[\"%s\"]" path))))
      ((string= type "coderef")
