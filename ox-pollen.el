@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.8.2
+;; Version: 0.8.3
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -186,7 +186,10 @@ This emits h7 and beyond, so define it in Pollen accordingly."
   (let ((level (org-element-property :level obj)))
     (format "◊h%s[#:id \"%s\"]{%s}\n\n%s"
             level
-            (downcase (org-element-property :raw-value obj))
+            (replace-regexp-in-string
+             (rx (or "\"")) ""
+             (downcase
+              (org-element-property :raw-value obj)))
             ;; We want `title' because it contains parsed links, for example
             (org-element-property :raw-value obj)
             contents)))
