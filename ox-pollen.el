@@ -4,7 +4,7 @@
 
 ;; Author: Kisaragi Hiu <mail@kisaragi-hiu.com>
 ;; Keywords: org, wp, pollen
-;; Version: 0.8.3
+;; Version: 0.8.4
 ;; Package-Requires: ((org "9.1") (emacs "25.1"))
 ;; URL: https://kisaragi-hiu.com/projects/ox-pollen
 
@@ -179,7 +179,7 @@ Calling that function with \"test\" should return ◊COMMAND{test}."
     (setq text (replace-regexp-in-string "[ \t]*\n" "  \n" text)))
   text)
 
-(defun ox-pollen-headline (obj contents _info)
+(defun ox-pollen-headline (obj contents info)
   "Transcode headline OBJ into h1, h2, h3...
 
 This emits h7 and beyond, so define it in Pollen accordingly."
@@ -187,11 +187,11 @@ This emits h7 and beyond, so define it in Pollen accordingly."
     (format "◊h%s[#:id \"%s\"]{%s}\n\n%s"
             level
             (replace-regexp-in-string
-             (rx (or "\"")) ""
+             (rx (or "\"" "=" "~")) ""
              (downcase
               (org-element-property :raw-value obj)))
             ;; We want `title' because it contains parsed links, for example
-            (org-element-property :raw-value obj)
+            (org-export-data (org-element-property :title obj) info)
             contents)))
 
 (defun ox-pollen-src-block (obj &rest _)
